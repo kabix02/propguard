@@ -33,8 +33,17 @@ export default function Page({ dbAccountProp }: { dbAccountProp: Account }) {
           </div>
         </div>
 
+        {/* Risk Engine */}
         <RiskCalculator dbAccount={dbAccountProp} balance={balance} />
-        <TradeForm dbAccount={dbAccountProp} setDailyLoss={setDailyLoss} setBalance={setBalance} />
+
+        {/* Trade Form */}
+        <TradeForm 
+          dbAccount={dbAccountProp} 
+          setDailyLoss={setDailyLoss} 
+          setBalance={setBalance} 
+        />
+
+        {/* Trade History */}
         <TradeHistory accountId={dbAccountProp.id} />
       </div>
     </main>
