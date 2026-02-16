@@ -1,5 +1,13 @@
 import { supabase } from '../lib/supabase';
 import RiskCalculator from '../components/RiskCalculator';
+import TradeForm from '../components/TradeForm';
+
+type Account = {
+  id: number;
+  initial_balance: number;
+  current_total_loss: number;
+  current_daily_loss: number;
+};
 
 export default async function Page() {
   const { data: account } = await supabase
@@ -15,8 +23,8 @@ export default async function Page() {
     );
   }
 
-  const balance = Number(account.initial_balance - (account.current_total_loss || 0)).toLocaleString();
-  const dailyLoss = Number(account.current_daily_loss || 0).toLocaleString();
+  const balance = Number(account.initial_balance) - Number(account.current_total_loss || 0);
+  const dailyLoss = Number(account.current_daily_loss || 0);
 
   return (
     <main style={{ minHeight: '100vh', background: 'black', color: 'white', padding: '20px' }}>
@@ -26,15 +34,19 @@ export default async function Page() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
           <div style={{ padding: '15px', background: '#18181b', borderRadius: '8px', border: '1px solid #27272a' }}>
             <p style={{ fontSize: '10px', color: '#71717a' }}>BALANCE</p>
-            <p style={{ fontSize: '18px' }}>${balance}</p>
+            <p style={{ fontSize: '18px' }}>${balance.toLocaleString()}</p>
           </div>
           <div style={{ padding: '15px', background: '#18181b', borderRadius: '8px', border: '1px solid #27272a' }}>
             <p style={{ fontSize: '10px', color: '#71717a' }}>DAILY LOSS</p>
-            <p style={{ fontSize: '18px' }}>${dailyLoss}</p>
+            <p style={{ fontSize: '18px' }}>${dailyLoss.toLocaleString()}</p>
           </div>
         </div>
 
+        {/* Risk Calculator */}
         <RiskCalculator dbAccount={account} />
+
+        {/* Trade Logger */}
+        <TradeForm dbAccount={account} />
       </div>
     </main>
   );
