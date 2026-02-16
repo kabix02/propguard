@@ -1,3 +1,5 @@
+"use client";
+import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import RiskCalculator from '../components/RiskCalculator';
 import TradeForm from '../components/TradeForm';
@@ -9,22 +11,9 @@ type Account = {
   current_daily_loss: number;
 };
 
-export default async function Page() {
-  const { data: account } = await supabase
-    .from('trading_accounts')
-    .select('*')
-    .single();
-
-  if (!account) {
-    return (
-      <div style={{ color: 'white', padding: '40px', textAlign: 'center', background: 'black', minHeight: '100vh' }}>
-        Account not found. Ensure you ran the SQL in Supabase!
-      </div>
-    );
-  }
-
-  const balance = Number(account.initial_balance) - Number(account.current_total_loss || 0);
-  const dailyLoss = Number(account.current_daily_loss || 0);
+export default function Page({ dbAccountProp }: { dbAccountProp: Account }) {
+  const [dailyLoss, setDailyLoss] = useState(Number(dbAccountProp.current_daily_loss || 0));
+  const balance = Number(dbAccountProp.initial_balance) - Number(dbAccountProp.current_total_loss || 0);
 
   return (
     <main style={{ minHeight: '100vh', background: 'black', color: 'white', padding: '20px' }}>
@@ -43,10 +32,10 @@ export default async function Page() {
         </div>
 
         {/* Risk Calculator */}
-        <RiskCalculator dbAccount={account} />
+        <RiskCalculator dbAccount={dbAccountProp} />
 
         {/* Trade Logger */}
-        <TradeForm dbAccount={account} />
+        <TradeForm dbAccount={dbAccountProp} setDailyLoss={setDailyLoss} />
       </div>
     </main>
   );
