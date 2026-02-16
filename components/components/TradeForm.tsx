@@ -11,16 +11,17 @@ type Account = {
 
 export default function TradeForm({
   dbAccount,
-  setDailyLoss
+  setDailyLoss,
+  setBalance
 }: {
-  dbAccount: Account,
-  setDailyLoss: React.Dispatch<React.SetStateAction<number>>
+  dbAccount: Account;
+  setDailyLoss: React.Dispatch<React.SetStateAction<number>>;
+  setBalance: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const [pips, setPips] = useState('');
   const [riskPercent, setRiskPercent] = useState('1'); // Default 1% risk
   const [loading, setLoading] = useState(false);
 
-  // Safe numeric calculations
   const balance = Number(dbAccount.initial_balance) - Number(dbAccount.current_total_loss || 0);
   const riskAmount = balance * (Number(riskPercent) / 100);
   const lotSize = pips ? (riskAmount / (Number(pips) * 10)).toFixed(2) : "0.00";
@@ -28,6 +29,7 @@ export default function TradeForm({
   const handleLogTrade = async () => {
     if (!dbAccount.id) return;
     setLoading(true);
+
     const newDailyLoss = Number(dbAccount.current_daily_loss || 0) + riskAmount;
 
     const { error } = await supabase
@@ -39,8 +41,11 @@ export default function TradeForm({
       console.error(error);
       alert("Error logging trade");
     } else {
-      setDailyLoss(newDailyLoss); // Update dashboard instantly
+      // Step 2: update daily loss and balance instantly
+      setDailyLoss(newDailyLoss);
+      setBalance(balance - riskAmount);
     }
+
     setLoading(false);
   };
 
