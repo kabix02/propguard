@@ -30,18 +30,18 @@ export default function TradeForm({
     if (!dbAccount.id || !pips) return;
     setLoading(true);
 
-    // Example P/L: assume 1 pip = $10 per lot (simplified)
-    const profitLoss = Number(pips) * Number(lotSize) * 10 * -1; // negative because loss
+    // Example: profit/loss is negative risk * lot size * 10
+    const profitLoss = Number(pips) * Number(lotSize) * 10 * -1;
 
+    // Update account daily loss
     const newDailyLoss = Number(dbAccount.current_daily_loss || 0) + Math.abs(profitLoss);
 
-    // 1️⃣ Update account daily loss
     const { error: accountError } = await supabase
       .from('trading_accounts')
       .update({ current_daily_loss: newDailyLoss })
       .eq('id', dbAccount.id);
 
-    // 2️⃣ Insert new trade
+    // Insert trade into trades table
     const { error: tradeError } = await supabase
       .from('trades')
       .insert([{
@@ -56,6 +56,7 @@ export default function TradeForm({
       console.error(accountError || tradeError);
       alert("Error logging trade");
     } else {
+      // Update state to refresh dashboard & trade history
       setDailyLoss(newDailyLoss);
       setBalance(balance - Math.abs(profitLoss));
       setPips('');
