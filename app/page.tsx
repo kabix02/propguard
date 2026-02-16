@@ -12,8 +12,11 @@ type Account = {
 };
 
 export default function Page({ dbAccountProp }: { dbAccountProp: Account }) {
+  // Step 1: States for daily loss and balance
   const [dailyLoss, setDailyLoss] = useState(Number(dbAccountProp.current_daily_loss || 0));
-  const balance = Number(dbAccountProp.initial_balance) - Number(dbAccountProp.current_total_loss || 0);
+  const [balance, setBalance] = useState(
+    Number(dbAccountProp.initial_balance) - Number(dbAccountProp.current_total_loss || 0)
+  );
 
   return (
     <main style={{ minHeight: '100vh', background: 'black', color: 'white', padding: '20px' }}>
@@ -32,10 +35,10 @@ export default function Page({ dbAccountProp }: { dbAccountProp: Account }) {
         </div>
 
         {/* Risk Calculator */}
-        <RiskCalculator dbAccount={dbAccountProp} />
+        <RiskCalculator dbAccount={dbAccountProp} setDailyLoss={setDailyLoss} setBalance={setBalance} />
 
         {/* Trade Logger */}
-        <TradeForm dbAccount={dbAccountProp} setDailyLoss={setDailyLoss} />
+        <TradeForm dbAccount={dbAccountProp} setDailyLoss={setDailyLoss} setBalance={setBalance} />
       </div>
     </main>
   );
