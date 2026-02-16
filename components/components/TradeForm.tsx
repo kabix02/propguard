@@ -9,7 +9,13 @@ type Account = {
   current_daily_loss: number;
 };
 
-export default function TradeForm({ dbAccount }: { dbAccount: Account }) {
+export default function TradeForm({
+  dbAccount,
+  setDailyLoss
+}: {
+  dbAccount: Account,
+  setDailyLoss: React.Dispatch<React.SetStateAction<number>>
+}) {
   const [pips, setPips] = useState('');
   const [riskPercent, setRiskPercent] = useState('1'); // Default 1% risk
   const [loading, setLoading] = useState(false);
@@ -33,7 +39,7 @@ export default function TradeForm({ dbAccount }: { dbAccount: Account }) {
       console.error(error);
       alert("Error logging trade");
     } else {
-      window.location.reload(); // Refresh to see updated stats
+      setDailyLoss(newDailyLoss); // Update dashboard instantly
     }
     setLoading(false);
   };
