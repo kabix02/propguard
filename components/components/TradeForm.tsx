@@ -19,7 +19,7 @@ export default function TradeForm({
   setBalance: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const [pips, setPips] = useState('');
-  const [riskPercent, setRiskPercent] = useState('1'); // Default 1% risk
+  const [riskPercent, setRiskPercent] = useState('1');
   const [loading, setLoading] = useState(false);
 
   const balance = Number(dbAccount.initial_balance) - Number(dbAccount.current_total_loss || 0);
@@ -27,23 +27,38 @@ export default function TradeForm({
   const lotSize = pips ? (riskAmount / (Number(pips) * 10)).toFixed(2) : "0.00";
 
   const handleLogTrade = async () => {
-    if (!dbAccount.id) return;
+    if (!dbAccount.id || !pips) return;
     setLoading(true);
 
-    const newDailyLoss = Number(dbAccount.current_daily_loss || 0) + riskAmount;
+    // Example P/L: assume 1 pip = $10 per lot (simplified)
+    const profitLoss = Number(pips) * Number(lotSize) * 10 * -1; // negative because loss
 
-    const { error } = await supabase
+    const newDailyLoss = Number(dbAccount.current_daily_loss || 0) + Math.abs(profitLoss);
+
+    // 1️⃣ Update account daily loss
+    const { error: accountError } = await supabase
       .from('trading_accounts')
       .update({ current_daily_loss: newDailyLoss })
       .eq('id', dbAccount.id);
 
-    if (error) {
-      console.error(error);
+    // 2️⃣ Insert new trade
+    const { error: tradeError } = await supabase
+      .from('trades')
+      .insert([{
+        account_id: dbAccount.id,
+        pips: Number(pips),
+        risk_percent: Number(riskPercent),
+        lot_size: Number(lotSize),
+        profit_loss: profitLoss
+      }]);
+
+    if (accountError || tradeError) {
+      console.error(accountError || tradeError);
       alert("Error logging trade");
     } else {
-      // Step 2: update daily loss and balance instantly
       setDailyLoss(newDailyLoss);
-      setBalance(balance - riskAmount);
+      setBalance(balance - Math.abs(profitLoss));
+      setPips('');
     }
 
     setLoading(false);
