@@ -15,6 +15,9 @@ export default async function Page() {
     );
   }
 
+  const balance = Number(account.initial_balance - (account.current_total_loss || 0)).toLocaleString();
+  const dailyLoss = Number(account.current_daily_loss || 0).toLocaleString();
+
   return (
     <main style={{ minHeight: '100vh', background: 'black', color: 'white', padding: '20px' }}>
       <div style={{ maxWidth: '500px', margin: '0 auto' }}>
@@ -23,17 +26,14 @@ export default async function Page() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
           <div style={{ padding: '15px', background: '#18181b', borderRadius: '8px', border: '1px solid #27272a' }}>
             <p style={{ fontSize: '10px', color: '#71717a' }}>BALANCE</p>
-            <p style={{ fontSize: '18px' }}>
-              ${(account.initial_balance - (account.current_total_loss || 0)).toLocaleString()}
-            </p>
+            <p style={{ fontSize: '18px' }}>${balance}</p>
           </div>
           <div style={{ padding: '15px', background: '#18181b', borderRadius: '8px', border: '1px solid #27272a' }}>
             <p style={{ fontSize: '10px', color: '#71717a' }}>DAILY LOSS</p>
-            <p style={{ fontSize: '18px' }}>${account.current_daily_loss || 0}</p>
+            <p style={{ fontSize: '18px' }}>${dailyLoss}</p>
           </div>
         </div>
 
-        {/* The Risk Engine */}
         <RiskCalculator dbAccount={account} />
       </div>
     </main>
