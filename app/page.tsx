@@ -1,5 +1,5 @@
-import { supabase } from '../lib/supabase';
-import RiskCalculator from '../components/RiskCalculator';
+import { supabase } from '@lib/supabase';
+import RiskCalculator from '@components/RiskCalculator';
 
 export default async function Page() {
   const { data: account } = await supabase
